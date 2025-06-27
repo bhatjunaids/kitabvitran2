@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitab Vitran Distribution Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .data-upload {
+            padding: 20px 30px;
+            background: rgba(248, 250, 252, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: inline-block;
+        }
+
+        .file-input-label:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .sample-data-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .sample-data-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .data-info {
+            margin-left: 15px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border-radius: 6px;
+            color: #065f46;
+            font-size: 0.9rem;
+        }
+
+        .filters {
+            padding: 30px;
+            background: rgba(248, 250, 252, 0.8);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .filter-group:hover {
+            transform: translateY(-2px);
+        }
+
+        .filter-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            transition: border-color 0.2s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #4f46e5;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .clear-filters {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .clear-filters:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+        }
+
+        .results {
+            padding: 30px;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .summary-card h3 {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .summary-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .results-table {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #1f2937, #374151);
+            color: white;
+            padding: 20px;
+        }
+
+        .table-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .table-container {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px 12px;
+            text-align: left;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #374151;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tr:hover {
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .filter-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-cards {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .table-container {
+                overflow-x: auto;
+            }
+            
+            table {
+                min-width: 800px;
+            }
+
+            .upload-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .data-info {
+                margin-left: 0;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📚 Kitab Vitran Distribution Dashboard</h1>
+            <p>Educational Materials Distribution Analysis - Auto-Loading</p>
+        </div>
+
+        <div class="data-upload">
+            <div class="upload-section">
+                <div class="file-input-wrapper">
+                    <input type="file" id="csvFile" class="file-input" accept=".csv" />
+                    <label for="csvFile" class="file-input-label">📁 Upload New CSV Data</label>
+                </div>
+                <button class="sample-data-btn" onclick="loadSampleData()">🔄 Load Sample Data</button>
+                <div class="data-info" id="dataInfo">No data loaded</div>
+            </div>
+            <div id="errorMessage"></div>
+        </div>
+
+        <div class="filters">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label for="districtFilter">District</label>
+                    <select id="districtFilter">
+                        <option value="">All Districts</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="blockFilter">Block</label>
+                    <select id="blockFilter">
+                        <option value="">All Blocks</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="titleFilter">Title Type</label>
+                    <select id="titleFilter">
+                        <option value="">All Title Types</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <button class="clear-filters" onclick="clearAllFilters()">Clear All Filters</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="results">
+            <div class="summary-cards" id="summaryCards">
+                <!-- Summary cards will be populated here -->
+            </div>
+
+            <div class="results-table">
+                <div class="table-header">
+                    <h2 id="tableTitle">Distribution Data</h2>
+                </div>
+                <div class="table-container">
+                    <div id="loadingMessage" class="loading">Upload CSV data or load sample data to begin</div>
+                    <table id="resultsTable" style="display: none;">
+                        <thead id="tableHead">
+                            <!-- Table headers will be populated here -->
+                        </thead>
+                        <tbody id="tableBody">
+                            <!-- Table data will be populated here -->
+                        </tbody>
+                    </table>
+                    <div id="noDataMessage" class="no-data" style="display: none;">
+                        No data found matching the selected filters.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let data = [];
+        let districts = [];
+        let titleTypes = [];
+
+        // Sample CSV data for demo
+        const sampleCSVData = `,District Name,Block Name,Picture Story Poster ,Big Book ,Math Story Book ,Math Poster ,Taalika Hindi ,Taalika Math ,Resource Person Handbook ,Teacher Handout,NIPUN Lakshya Poster Balvatika ,Taalika Social Studies ,Taalika Science ,Taalika English ,NIPUN Lakshya Poster 2 ,NIPUN Lakshya Poster 1
+,Agra,Achhnera,,,,1,1,1,,,1,1,1,1,1,1
+,Agra,Achhnera (Mb),3,2,2,1,1,1,2,2,1,1,1,1,1,1
+,Agra,Agra (M. Corp.),4,4,5,4,4,4,6,6,4,6,7,4,4,4
+,Agra,Akola,2,2,3,2,1,1,2,2,2,1,1,2,2,2
+,Aligarh,Akrabad,4,3,5,,3,3,2,1,2,3,6,2,2,
+,Aligarh,Aligarh,8,6,10,7,12,14,6,3,4,18,16,15,20,9
+,Ghaziabad,Bhojpur,8,6,15,12,22,14,4,2,18,28,26,20,16,14
+,Ghaziabad,Loni,2,2,3,2,2,2,2,12,2,2,2,2,2,2`;
+
+        // Parse CSV data
+        function parseCSV(csvText) {
+            try {
+                const lines = csvText.trim().split('\n');
+                if (lines.length < 2) {
+                    throw new Error('CSV file must have at least a header and one data row');
+                }
+
+                const headers = lines[0].split(',').map(h => h.trim());
+                
+                // Validate required columns
+                if (headers.length < 3 || !headers[1] || !headers[2]) {
+                    throw new Error('CSV must have District Name and Block Name columns');
+                }
+                
+                // Extract title types (skip first 3 columns: empty, District Name, Block Name)
+                titleTypes = headers.slice(3).filter(h => h.length > 0);
+                
+                if (titleTypes.length === 0) {
+                    throw new Error('No title type columns found in CSV');
+                }
+
+                data = [];
+                const validRows = [];
+                
+                for (let i = 1; i < lines.length; i++) {
+                    const values = lines[i].split(',');
+                    if (values.length >= 3 && values[1] && values[2]) {
+                        const row = {
+                            district: values[1].trim(),
+                            block: values[2].trim(),
+                            titles: {}
+                        };
+                        
+                        // Parse title quantities
+                        for (let j = 3; j < values.length && j - 3 < titleTypes.length; j++) {
+                            const value = values[j] ? values[j].trim() : '';
+                            const numValue = value === '' ? 0 : parseInt(value);
+                            row.titles[titleTypes[j - 3]] = isNaN(numValue) ? 0 : numValue;
+                        }
+                        
+                        validRows.push(row);
+                    }
+                }
+                
+                if (validRows.length === 0) {
+                    throw new Error('No valid data rows found in CSV');
+                }
+
+                data = validRows;
+                
+                // Extract unique districts
+                districts = [...new Set(data.map(row => row.district))].sort();
+                
+                return {
+                    success: true,
+                    message: `Successfully loaded ${data.length} records from ${districts.length} districts with ${titleTypes.length} title types`
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    message: `Error parsing CSV: ${error.message}`
+                };
+            }
+        }
+
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const result = parseCSV(e.target.result);
+                displayMessage(result.message, result.success);
+                
+                if (result.success) {
+                    populateFilters();
+                    updateDisplay();
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            const result = parseCSV(sampleCSVData);
+            displayMessage(result.message, result.success);
+            
+            if (result.success) {
+                populateFilters();
+                updateDisplay();
+            }
+        }
+
+        // Display messages
+        function displayMessage(message, isSuccess) {
+            const dataInfo = document.getElementById('dataInfo');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            if (isSuccess) {
+                dataInfo.textContent = message;
+                dataInfo.style.background = 'rgba(16, 185, 129, 0.1)';
+                dataInfo.style.color = '#065f46';
+                errorMessage.innerHTML = '';
+            } else {
+                errorMessage.innerHTML = `<div class="error-message">${message}</div>`;
+                dataInfo.textContent = 'Failed to load data';
+                dataInfo.style.background = 'rgba(239, 68, 68, 0.1)';
+                dataInfo.style.color = '#dc2626';
+            }
+        }
+
+        // Populate filter dropdowns
+        function populateFilters() {
+            const districtSelect = document.getElementById('districtFilter');
+            const titleSelect = document.getElementById('titleFilter');
+            
+            // Clear existing options except "All" option
+            districtSelect.innerHTML = '<option value="">All Districts</option>';
+            titleSelect.innerHTML = '<option value="">All Title Types</option>';
+            
+            // Populate districts
+            districts.forEach(district => {
+                const option = document.createElement('option');
+                option.value = district;
+                option.textContent = district;
+                districtSelect.appendChild(option);
+            });
+            
+            // Populate title types
+            titleTypes.forEach(title => {
+                const option = document.createElement('option');
+                option.value = title;
+                option.textContent = title;
+                titleSelect.appendChild(option);
+            });
+        }
+
+        // Update block filter based on selected district
+        function updateBlockFilter() {
+            const districtFilter = document.getElementById('districtFilter').value;
+            const blockSelect = document.getElementById('blockFilter');
+            
+            // Clear existing options
+            blockSelect.innerHTML = '<option value="">All Blocks</option>';
+            
+            if (districtFilter) {
+                const blocks = [...new Set(data
+                    .filter(row => row.district === districtFilter)
+                    .map(row => row.block)
+                )].sort();
+                
+                blocks.forEach(block => {
+                    const option = document.createElement('option');
+                    option.value = block;
+                    option.textContent = block;
+                    blockSelect.appendChild(option);
+                });
+            }
+        }
+
+        // Filter data based on selections
+        function getFilteredData() {
+            const districtFilter = document.getElementById('districtFilter').value;
+            const blockFilter = document.getElementById('blockFilter').value;
+            
+            return data.filter(row => {
+                return (!districtFilter || row.district === districtFilter) &&
+                       (!blockFilter || row.block === blockFilter);
+            });
+        }
+
+        // Generate summary statistics
+        function generateSummary(filteredData) {
+            const summary = {
+                totalDistricts: new Set(filteredData.map(row => row.district)).size,
+                totalBlocks: filteredData.length,
+                totalTitles: 0,
+                titleTypeCounts: {}
+            };
+            
+            const titleFilter = document.getElementById('titleFilter').value;
+            
+            filteredData.forEach(row => {
+                if (titleFilter) {
+                    summary.totalTitles += row.titles[titleFilter] || 0;
+                } else {
+                    Object.values(row.titles).forEach(count => {
+                        summary.totalTitles += count;
+                    });
+                }
+                
+                Object.entries(row.titles).forEach(([title, count]) => {
+                    if (!titleFilter || title === titleFilter) {
+                        summary.titleTypeCounts[title] = (summary.titleTypeCounts[title] || 0) + count;
+                    }
+                });
+            });
+            
+            return summary;
+        }
+
+        // Display summary cards
+        function displaySummary(summary) {
+            const summaryContainer = document.getElementById('summaryCards');
+            const titleFilter = document.getElementById('titleFilter').value;
+            
+            let cards = `
+                <div class="summary-card">
+                    <h3>Total Districts</h3>
+                    <div class="value">${summary.totalDistricts}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Blocks</h3>
+                    <div class="value">${summary.totalBlocks}</div>
+                </div>
+                <div class="summary-card">
+                    <h3>Total Titles</h3>
+                    <div class="value">${summary.totalTitles.toLocaleString()}</div>
+                </div>
+            `;
+            
+            if (titleFilter) {
+                cards += `
+                    <div class="summary-card">
+                        <h3>${titleFilter}</h3>
+                        <div class="value">${(summary.titleTypeCounts[titleFilter] || 0).toLocaleString()}</div>
+                    </div>
+                `;
+            }
+            
+            summaryContainer.innerHTML = cards;
+        }
+
+        // Display results table
+        function displayResults(filteredData) {
+            const tableHead = document.getElementById('tableHead');
+            const tableBody = document.getElementById('tableBody');
+            const tableTitle = document.getElementById('tableTitle');
+            const resultsTable = document.getElementById('resultsTable');
+            const noDataMessage = document.getElementById('noDataMessage');
+            const loadingMessage = document.getElementById('loadingMessage');
+            
+            loadingMessage.style.display = 'none';
+            
+            if (filteredData.length === 0) {
+                resultsTable.style.display = 'none';
+                noDataMessage.style.display = 'block';
+                return;
+            }
+            
+            const titleFilter = document.getElementById('titleFilter').value;
+            const districtFilter = document.getElementById('districtFilter').value;
+            const blockFilter = document.getElementById('blockFilter').value;
+            
+            // Set table title
+            let title = 'Distribution Data';
+            if (districtFilter && blockFilter) {
+                title = `${districtFilter} - ${blockFilter}`;
+            } else if (districtFilter) {
+                title = `${districtFilter} District`;
+            } else if (titleFilter) {
+                title = `${titleFilter} Distribution`;
+            }
+            tableTitle.textContent = title;
+            
+            // Generate table headers
+            let headers = '<tr><th>District</th><th>Block</th>';
+            if (titleFilter) {
+                headers += `<th>${titleFilter}</th>`;
+            } else {
+                titleTypes.forEach(title => {
+                    headers += `<th>${title}</th>`;
+                });
+            }
+            headers += '<th>Total</th></tr>';
+            tableHead.innerHTML = headers;
+            
+            // Generate table rows
+            let rows = '';
+            filteredData.forEach(row => {
+                rows += `<tr><td>${row.district}</td><td>${row.block}</td>`;
+                
+                let rowTotal = 0;
+                if (titleFilter) {
+                    const count = row.titles[titleFilter] || 0;
+                    rows += `<td>${count.toLocaleString()}</td>`;
+                    rowTotal = count;
+                } else {
+                    titleTypes.forEach(title => {
+                        const count = row.titles[title] || 0;
+                        rows += `<td>${count.toLocaleString()}</td>`;
+                        rowTotal += count;
+                    });
+                }
+                
+                rows += `<td><strong>${rowTotal.toLocaleString()}</strong></td></tr>`;
+            });
+            tableBody.innerHTML = rows;
+            
+            resultsTable.style.display = 'table';
+            noDataMessage.style.display = 'none';
+        }
+
+        // Update display
+        function updateDisplay() {
+            if (data.length === 0) {
+                document.getElementById('summaryCards').innerHTML = '';
+                document.getElementById('loadingMessage').style.display = 'block';
+                document.getElementById('resultsTable').style.display = 'none';
+                document.getElementById('noDataMessage').style.display = 'none';
+                return;
+            }
+            
+            const filteredData = getFilteredData();
+            const summary = generateSummary(filteredData);
+            displaySummary(summary);
+            displayResults(filteredData);
+        }
+
+        // Clear all filters
+        function clearAllFilters() {
+            document.getElementById('districtFilter').value = '';
+            document.getElementById('blockFilter').value = '';
+            document.getElementById('titleFilter').value = '';
+            updateBlockFilter();
+            updateDisplay();
+        }
+
+        // Event listeners
+        document.getElementById('csvFile').addEventListener('change', handleFileUpload);
+        
+        document.getElementById('districtFilter').addEventListener('change', function() {
+            updateBlockFilter();
+            updateDisplay();
+        });
+
+        document.getElementById('blockFilter').addEventListener('change', updateDisplay);
+        document.getElementById('titleFilter').addEventListener('change', updateDisplay);
+
+        // Initialize with empty state
+        updateDisplay();
+    </script>
+</body>
+</html>
